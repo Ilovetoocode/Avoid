@@ -1,11 +1,9 @@
 import pygame, sys, math, random
 
 
-# Test if two sprite masks overlap
 def pixel_collision(mask1, rect1, mask2, rect2):
     offset_x = rect2[0] - rect1[0]
     offset_y = rect2[1] - rect1[1]
-    # See if the two masks at the offset are overlapping.
     overlap = mask1.overlap(mask2, (offset_x, offset_y))
     if overlap:
         return True
@@ -14,10 +12,7 @@ def pixel_collision(mask1, rect1, mask2, rect2):
 
 def list_adder(list,newelement):
     list.append(newelement)
-    print(list)
 
-# A basic Sprite class that can draw itself, move, and test collisions. Basically the same as
-# the Character example from class.
 class Sprite:
     def __init__(self, image):
         self.image = image
@@ -36,66 +31,36 @@ class Sprite:
 
 class Enemy:
     def __init__(self, image, width, height):
-        self.windowheight = height
-        self.windowwidth = width
         self.image = image
         self.mask = pygame.mask.from_surface(image)
         self.rectangle = image.get_rect()
-        self.rectangle.center = (random.randint(0, self.windowwidth), random.randint(0, self.windowheight))
-        self.speed=(random.randrange(-100,100),random.randrange(-100,100))
-
-
-
-
-        # Add code to
-        # 1. Set the rectangle center to a random x and y based
-        #    on the screen width and height
-        # 2. Set a speed instance variable that holds a tuple (vx, vy)
-        #    which specifies how much the rectangle moves each time.
-        #    vx means "velocity in x". Make the vx and vy random (with
-        #    possible negative and positive values. Experiment so the 
-        #    speeds are not too fast.
+        self.rectangle.center = (random.randint(0, width), random.randint(0, height))
+        self.speed=(random.randrange(-10,10),random.randrange(-10,10))
 
     def move(self):
         self.rectangle.move_ip(self.speed)
-        # Add code to move the rectangle instance variable in x by
-        # the speed vx and in y by speed vy. The vx and vy are the
-        # components of the speed instance variable tuple.
-        # A useful method of rectangle is pygame's move_ip method.
-        # Research how to use it for this task.
 
-    def bounce(self, width, height):
-        width=self.windowwidth
-        height=self.windowheight
-        print("need to implement bounce!")
-        # This method makes the enemy bounce off of the top/left/right/bottom
-        # of the screen. For example, if you want to check if the object is
-        # hitting the left side, you can test
-        # if self.rectangle.left < 0:
-        # The rectangle.left tests the left side of the rectangle. You will
-        # want to use .right .top .bottom for the other sides.
-        # The height and width parameters gives the screen boundaries.
-        # If a hit of the edge of the screen is detected on the top or bottom
-        # you want to negate (multiply by -1) the vy component of the speed instance
-        # variable. If a hit is detected on the left or right of the screen, you
-        # want to negate the vx component of the speed.
-        # Make sure the speed instance variable is updated as needed.
+    def bounce(self,width,height):
+        changeval=list(self.speed)
+        if self.rectangle.left < 0  or self.rectangle.right > width:
+            changeval[0]*=-1
+            self.speed=tuple(changeval)
+        if self.rectangle.top < 0 or self.rectangle.bottom > height:
+            changeval[1]*=-1
+            self.speed=tuple(changeval)
 
     def draw(self, screen):
-        # Same draw as Sprite
         screen.blit(self.image, self.rectangle)
 
 
 class PowerUp:
     def __init__(self, image, width, height):
-        # Set the PowerUp position randomly like is done for the Enemy class.
-        # There is no speed for this object as it does not move.
         self.image = image
         self.mask = pygame.mask.from_surface(image)
         self.rectangle = image.get_rect()
+        self.rectangle.center = (random.randint(0, width), random.randint(0, height))
 
     def draw(self, screen):
-        # Same as Sprite
         screen.blit(self.image, self.rectangle)
 
 
@@ -103,6 +68,8 @@ def main():
     spawn_cooldown=0
     # Setup pygame
     pygame.init()
+    Thetimer=pygame.time.Clock()
+    starttime=pygame.time.get_ticks()
     # Get a font for printing the lives left on the screen.
     myfont = pygame.font.SysFont('monospace', 24)
 
@@ -114,20 +81,20 @@ def main():
     # Load image assets
     # Choose your own image
     enemy = pygame.image.load("GolfBall.png").convert_alpha()
-    # Here is an example of scaling it to fit a 50x50 pixel size.
     enemy_image = pygame.transform.smoothscale(enemy, (50, 50))
 
     enemy_sprites = []
-    # Make some number of enemies that will bounce around the screen.
-    # Make a new Enemy instance each loop and add it to enemy_sprites. 
+
 
     # This is the character you control. Choose your image.
-    player_image = pygame.image.load("Wizard.gif").convert_alpha()
+    player = pygame.image.load("Wizard.gif").convert_alpha()
+    player_image=pygame.transform.smoothscale(player,(60,50))
     player_sprite = Sprite(player_image)
     life = 3
 
     # This is the powerup image. Choose your image.
     powerup_image = pygame.image.load("knight.gif").convert_alpha()
+    powerup_display=pygame.transform.smoothscale(powerup_image,(60,50))
     # Start with an empty list of powerups and add them as the game runs.
     powerups = []
 
@@ -137,11 +104,18 @@ def main():
     while is_playing:  # while is_playing is True, repeat
         # Modify the loop to stop when life is <= to 0.
         # Check for events
+        ##i hate having this code here... if only i could move it into a different function without breaking stuff...
+        ##Anyways! This game is in an endless survival thing due to how I have my spawn code set up!
+        ##So of course! We need to exploit the fact that there is a timer function in pygame to do just that!
+        gametime=pygame.time.get_ticks()-starttime
+        minutes=str(gametime//60000).zfill(2)
+        seconds=str((gametime%60000)/1000).zfill(2)
+        milliseconds=str(gametime%1000).zfill(3)
+        finaltime="%s:%s:%s"%(minutes,seconds,milliseconds)
         for event in pygame.event.get():
             # Stop loop if click on window close button
             if event.type == pygame.QUIT:
                 is_playing = False
-
         # Make the player follow the mouse
         pos = pygame.mouse.get_pos()
         player_sprite.set_position(pos)
@@ -151,21 +125,34 @@ def main():
         # A player is likely to overlap an enemy for a few iterations
         # of the game loop - experiment to find a small value to deduct that
         # makes the game challenging but not frustrating.
+        for enemy in enemy_sprites:
 
+                if enemy.rectangle.colliderect(player_sprite.rectangle):
+                    life -=.1
         # Loop over the powerups. If the player sprite is colliding, add
         # 1 to the life.
         # Make a list comprehension that removes powerups that are colliding with
         # the player sprite.
+        for powerup in powerups:
+            if powerup.rectangle.colliderect(player_sprite.rectangle):
+                if Moarrnglmao==100:
+                    enemy_sprites=[]
+                life+=1
+        powerups=[powerup for powerup in powerups if not powerup.rectangle.colliderect(player_sprite.rectangle)]
 
         # Loop over the enemy_sprites. Each enemy should call move and bounce.
         for enemy in enemy_sprites:
             enemy.move()
+            enemy.bounce(width,height)
         # Choose a random number. Use the random number to decide to add a new
         # powerup to the powerups list. Experiment to make them appear not too
         # often, so the game is challenging.
+        Moarrnglmao=random.randint(0,100)
+        if Moarrnglmao==100:
+            powerups.append(PowerUp(powerup_display,width,height))
         if spawn_cooldown==0:
-            list_adder(enemy_sprites, Enemy(enemy_image, width, height))
-            spawn_cooldown=20
+            enemy_sprites.append(Enemy(enemy_image, width, height))
+            spawn_cooldown=100
         else:
             spawn_cooldown-=1
         # Erase the screen with a background color
@@ -183,6 +170,16 @@ def main():
         text = "Life: " + str('%.1f' % life)
         life_banner = myfont.render(text, True, (255, 255, 0))
         screen.blit(life_banner, (20, 20))
+        if life <=0:
+            failtext="Game over! You survived for: "
+            endtime=str(finaltime)
+            screen.fill((255, 0, 0))
+            ending_text_1=myfont.render(failtext, True, (71,255,144))
+            ending_text_2=myfont.render(endtime,True,(218,165,32))
+            screen.blit(ending_text_1,(50,100))
+            screen.blit(ending_text_2,(50,150))
+            is_playing=False
+
 
         # Bring all the changes to the screen into view
         pygame.display.update()
