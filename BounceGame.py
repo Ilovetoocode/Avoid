@@ -1,6 +1,8 @@
 import pygame, sys, math, random
 
-
+##THIS IS A BAD IDEA, BUT I LOVE IT!
+##THIS, is the gear! It's a Global variable! Why is it a Global? Because that's the best way
+## I thought of handeling speed for the enemies and my spawn timer.
 def pixel_collision(mask1, rect1, mask2, rect2):
     offset_x = rect2[0] - rect1[0]
     offset_y = rect2[1] - rect1[1]
@@ -30,12 +32,13 @@ class Sprite:
 
 
 class Enemy:
-    def __init__(self, image, width, height):
+    def __init__(self, image, width, height, gear):
         self.image = image
         self.mask = pygame.mask.from_surface(image)
         self.rectangle = image.get_rect()
         self.rectangle.center = (random.randint(0, width), random.randint(0, height))
-        self.speed=(random.randrange(-10,10),random.randrange(-10,10))
+        self.gear=gear
+        self.speed=(random.randrange((-10*gear),(10*gear)),random.randrange((-10*gear),(10*gear)))
 
     def move(self):
         self.rectangle.move_ip(self.speed)
@@ -68,6 +71,7 @@ def main():
     spawn_cooldown=0
     # Setup pygame
     pygame.init()
+    gear=1
     Thetimer=pygame.time.Clock()
     starttime=pygame.time.get_ticks()
     # Get a font for printing the lives left on the screen.
@@ -104,6 +108,12 @@ def main():
     while is_playing:  # while is_playing is True, repeat
         # Modify the loop to stop when life is <= to 0.
         # Check for events
+        ##oh no. a userevent. Yeah This thing is, strange to be here.
+        ##This odd bit of syntax we aren't supposed to know yet is part of the control of
+        ##THE GEAR SYSTEM! Basically it needs to be, defined like this
+        ##Just so I can set a timer on it using pygame later on.
+        ##There, I will fully explain, the madness.
+        gearshift=pygame.USEREVENT+1
         ##i hate having this code here... if only i could move it into a different function without breaking stuff...
         ##Anyways! This game is in an endless survival thing due to how I have my spawn code set up!
         ##So of course! We need to exploit the fact that there is a timer function in pygame to do just that!
@@ -112,8 +122,13 @@ def main():
         seconds=str((gametime%60000)/1000).zfill(2)
         milliseconds=str(gametime%1000).zfill(3)
         finaltime="%s:%s:%s"%(minutes,seconds,milliseconds)
+        ##Here's the timer for, gearshifts
+        pygame.time.set_timer(gearshift,1000, 0) ##CHANGE THAT NUMBER ON THE END, GAME IS IMPOSSIBLE NOW
         for event in pygame.event.get():
             # Stop loop if click on window close button
+            if event.type == gearshift:
+                gear += 1
+                print("Event happens")
             if event.type == pygame.QUIT:
                 is_playing = False
         # Make the player follow the mouse
@@ -135,7 +150,8 @@ def main():
         # the player sprite.
         for powerup in powerups:
             if powerup.rectangle.colliderect(player_sprite.rectangle):
-                if Moarrnglmao==100:
+                ##RNG Event to get a bonus screen clear, woooo!!!!
+                if Moarrnglmao==40:
                     enemy_sprites=[]
                 life+=1
         powerups=[powerup for powerup in powerups if not powerup.rectangle.colliderect(player_sprite.rectangle)]
@@ -151,8 +167,10 @@ def main():
         if Moarrnglmao==100:
             powerups.append(PowerUp(powerup_display,width,height))
         if spawn_cooldown==0:
-            enemy_sprites.append(Enemy(enemy_image, width, height))
-            spawn_cooldown=100
+
+            enemy_sprites.append(Enemy(enemy_image, width, height, gear))
+            spawn_cooldown=(100/gear)
+            print(gear)
         else:
             spawn_cooldown-=1
         # Erase the screen with a background color
