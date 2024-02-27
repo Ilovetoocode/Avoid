@@ -1,5 +1,6 @@
 import pygame, sys, math, random
 
+
 # Test if two sprite masks overlap
 def pixel_collision(mask1, rect1, mask2, rect2):
     offset_x = rect2[0] - rect1[0]
@@ -11,7 +12,11 @@ def pixel_collision(mask1, rect1, mask2, rect2):
     else:
         return False
 
-# A basic Sprite class that can draw itself, move, and test collisions. Basically the same as 
+def list_adder(list,newelement):
+    list.append(newelement)
+    print(list)
+
+# A basic Sprite class that can draw itself, move, and test collisions. Basically the same as
 # the Character example from class.
 class Sprite:
     def __init__(self, image):
@@ -31,9 +36,16 @@ class Sprite:
 
 class Enemy:
     def __init__(self, image, width, height):
+        self.windowheight = height
+        self.windowwidth = width
         self.image = image
         self.mask = pygame.mask.from_surface(image)
         self.rectangle = image.get_rect()
+        self.rectangle.center = (random.randint(0, self.windowwidth), random.randint(0, self.windowheight))
+        self.speed=(random.randrange(-100,100),random.randrange(-100,100))
+
+
+
 
         # Add code to
         # 1. Set the rectangle center to a random x and y based
@@ -44,10 +56,8 @@ class Enemy:
         #    possible negative and positive values. Experiment so the 
         #    speeds are not too fast.
 
-
-
     def move(self):
-        print("need to implement move!")
+        self.rectangle.move_ip(self.speed)
         # Add code to move the rectangle instance variable in x by
         # the speed vx and in y by speed vy. The vx and vy are the
         # components of the speed instance variable tuple.
@@ -55,6 +65,8 @@ class Enemy:
         # Research how to use it for this task.
 
     def bounce(self, width, height):
+        width=self.windowwidth
+        height=self.windowheight
         print("need to implement bounce!")
         # This method makes the enemy bounce off of the top/left/right/bottom
         # of the screen. For example, if you want to check if the object is
@@ -73,6 +85,7 @@ class Enemy:
         # Same draw as Sprite
         screen.blit(self.image, self.rectangle)
 
+
 class PowerUp:
     def __init__(self, image, width, height):
         # Set the PowerUp position randomly like is done for the Enemy class.
@@ -85,10 +98,11 @@ class PowerUp:
         # Same as Sprite
         screen.blit(self.image, self.rectangle)
 
+
 def main():
+    spawn_cooldown=0
     # Setup pygame
     pygame.init()
-
     # Get a font for printing the lives left on the screen.
     myfont = pygame.font.SysFont('monospace', 24)
 
@@ -120,9 +134,8 @@ def main():
     # Main part of the game
     is_playing = True
     # while loop
-    while is_playing:# while is_playing is True, repeat
-    # Modify the loop to stop when life is <= to 0.
-
+    while is_playing:  # while is_playing is True, repeat
+        # Modify the loop to stop when life is <= to 0.
         # Check for events
         for event in pygame.event.get():
             # Stop loop if click on window close button
@@ -141,18 +154,22 @@ def main():
 
         # Loop over the powerups. If the player sprite is colliding, add
         # 1 to the life.
-
         # Make a list comprehension that removes powerups that are colliding with
         # the player sprite.
 
         # Loop over the enemy_sprites. Each enemy should call move and bounce.
-
+        for enemy in enemy_sprites:
+            enemy.move()
         # Choose a random number. Use the random number to decide to add a new
         # powerup to the powerups list. Experiment to make them appear not too
         # often, so the game is challenging.
-
+        if spawn_cooldown==0:
+            list_adder(enemy_sprites, Enemy(enemy_image, width, height))
+            spawn_cooldown=20
+        else:
+            spawn_cooldown-=1
         # Erase the screen with a background color
-        screen.fill((0,100,50)) # fill the window with a color
+        screen.fill((0, 100, 50))  # fill the window with a color
 
         # Draw the characters
         for enemy_sprite in enemy_sprites:
@@ -163,7 +180,7 @@ def main():
         player_sprite.draw(screen)
 
         # Write the life to the screen.
-        text = "Life: " + str('%.1f'%life)
+        text = "Life: " + str('%.1f' % life)
         life_banner = myfont.render(text, True, (255, 255, 0))
         screen.blit(life_banner, (20, 20))
 
@@ -177,6 +194,7 @@ def main():
     pygame.time.wait(2000)
     pygame.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()
