@@ -1,8 +1,48 @@
-import pygame, sys, math, random
+import pygame, sys, math, random, string
+##So this used to be the function from last time...
+##BUT OH MY GOODNESS, IS IT SO MUCH BETTER NOW!!
+##Managed to somehow make it all one line, nowehere near as messy
+##AND It's actually able to strip data! Yes!
+#Also it always pops the first element, because that data ends up causing bugs later on.
+#You will see why.
+def make_list_from_file(file):
+    with open(file, 'r', encoding='utf8') as file:
+        items = file.read().lower().splitlines()
+        items.pop(0)
+        return items
+def file_writer(text_to_print):
+    with open('High_scores!.txt', 'w') as result_file:
+        result_file.write("Scores!\n")
+        result_file.write(text_to_print+"\n")
+def highscore_table_creator(scoreinput,tableinput):
+    possible_new_high=scoreinput.split(":")
+    confirmed_highs=[highscore for highscore in tableinput]
+    itempoint=0
+    endstring=""
+    for score in confirmed_highs:
+        broken_score=str(score).split(":")
+        inner_loop_pointer=0
+        Newhigh=False
+        for scorepart in possible_new_high:
+             if scorepart<broken_score[inner_loop_pointer]:
+                 break
+             elif scorepart==broken_score[inner_loop_pointer]:
+                 inner_loop_pointer+=1
+             else:
+                 Newhigh=True
+                 break
+        if Newhigh==True:
+            tableinput[itempoint]=scoreinput
+            break
+        itempoint+=1
+    for item in tableinput:
+        endstring=endstring+item+"\n"
 
-##THIS IS A BAD IDEA, BUT I LOVE IT!
-##THIS, is the gear! It's a Global variable! Why is it a Global? Because that's the best way
-## I thought of handeling speed for the enemies and my spawn timer.
+    file_writer(endstring)
+
+
+
+
 def pixel_collision(mask1, rect1, mask2, rect2):
     offset_x = rect2[0] - rect1[0]
     offset_y = rect2[1] - rect1[1]
@@ -12,8 +52,6 @@ def pixel_collision(mask1, rect1, mask2, rect2):
     else:
         return False
 
-def list_adder(list,newelement):
-    list.append(newelement)
 
 class Sprite:
     def __init__(self, image):
@@ -36,7 +74,7 @@ class Enemy:
         self.image = image
         self.mask = pygame.mask.from_surface(image)
         self.rectangle = image.get_rect()
-        self.rectangle.center = (random.randint(0, width), random.randint(0, height))
+        self.rectangle.center = (random.randrange(0, width), random.randint(0, height))
         self.gear=gear
         self.speed=(random.randrange((-10*gear),(10*gear)),random.randrange((-10*gear),(10*gear)))
 
@@ -68,102 +106,77 @@ class PowerUp:
 
 
 def main():
-    spawn_cooldown=0
-    # Setup pygame
     pygame.init()
+    spawn_cooldown = 0
     gear=1
+
     Thetimer=pygame.time.Clock()
     starttime=pygame.time.get_ticks()
-    # Get a font for printing the lives left on the screen.
-    myfont = pygame.font.SysFont('monospace', 24)
 
-    # Define the screen
+    myfont = pygame.font.SysFont('monospace', 24)
     width, height = 600, 400
     size = width, height
     screen = pygame.display.set_mode((width, height))
 
-    # Load image assets
-    # Choose your own image
     enemy = pygame.image.load("GolfBall.png").convert_alpha()
     enemy_image = pygame.transform.smoothscale(enemy, (50, 50))
 
     enemy_sprites = []
 
-
-    # This is the character you control. Choose your image.
-    player = pygame.image.load("Wizard.gif").convert_alpha()
+    player = pygame.image.load("Derg.jpg").convert_alpha()
     player_image=pygame.transform.smoothscale(player,(60,50))
     player_sprite = Sprite(player_image)
     life = 3
 
-    # This is the powerup image. Choose your image.
     powerup_image = pygame.image.load("knight.gif").convert_alpha()
     powerup_display=pygame.transform.smoothscale(powerup_image,(60,50))
-    # Start with an empty list of powerups and add them as the game runs.
+
+    bomb_image=pygame.image.load("Bomb.png").convert_alpha()
+    bomb_display=pygame.transform.smoothscale(bomb_image,(60,50))
+
     powerups = []
+    bombs=[]
+
     gearshift = pygame.USEREVENT + 1
     pygame.time.set_timer(gearshift, 10000, 0)
-    # Main part of the game
+
     is_playing = True
-    # while loop
-    while is_playing:  # while is_playing is True, repeat
-        # Modify the loop to stop when life is <= to 0.
-        # Check for events
-        ##oh no. a userevent. Yeah This thing is, strange to be here.
-        ##This odd bit of syntax we aren't supposed to know yet is part of the control of
-        ##THE GEAR SYSTEM! Basically it needs to be, defined like this
-        ##Just so I can set a timer on it using pygame later on.
-        ##There, I will fully explain, the madness.
-        ##i hate having this code here... if only i could move it into a different function without breaking stuff...
-        ##Anyways! This game is in an endless survival thing due to how I have my spawn code set up!
-        ##So of course! We need to exploit the fact that there is a timer function in pygame to do just that!
+    while is_playing:
         gametime=pygame.time.get_ticks()-starttime
         minutes=str(gametime//60000).zfill(2)
-        seconds=str((gametime%60000)/1000).zfill(2)
+        seconds=str((gametime%60000)//1000).zfill(2)
         milliseconds=str(gametime%1000).zfill(3)
         finaltime="%s:%s:%s"%(minutes,seconds,milliseconds)
-        ##Here's the timer for, gearshifts
-         ##CHANGE THAT NUMBER ON THE END, GAME IS IMPOSSIBLE NOW
+
         for event in pygame.event.get():
-            # Stop loop if click on window close button
             if event.type == gearshift:
                 gear += 1
-                print("Event happens")
-                print(gear)
+                bombs=[]
+                bombs.append(PowerUp(bomb_display, width, height))
+
             if event.type == pygame.QUIT:
                 is_playing = False
-        # Make the player follow the mouse
+
         pos = pygame.mouse.get_pos()
         player_sprite.set_position(pos)
 
-        # Loop over the enemy sprites. If the player sprite is
-        # colliding with an enemy, deduct from the life variable.
-        # A player is likely to overlap an enemy for a few iterations
-        # of the game loop - experiment to find a small value to deduct that
-        # makes the game challenging but not frustrating.
         for enemy in enemy_sprites:
-
                 if enemy.rectangle.colliderect(player_sprite.rectangle):
                     life -=.1
-        # Loop over the powerups. If the player sprite is colliding, add
-        # 1 to the life.
-        # Make a list comprehension that removes powerups that are colliding with
-        # the player sprite.
         for powerup in powerups:
             if powerup.rectangle.colliderect(player_sprite.rectangle):
-                ##RNG Event to get a bonus screen clear, woooo!!!!
                 if Moarrnglmao==40:
                     enemy_sprites=[]
                 life+=1
-        powerups=[powerup for powerup in powerups if not powerup.rectangle.colliderect(player_sprite.rectangle)]
 
-        # Loop over the enemy_sprites. Each enemy should call move and bounce.
+        powerups=[powerup for powerup in powerups if not powerup.rectangle.colliderect(player_sprite.rectangle)]
+        for bomb in bombs:
+            if bomb.rectangle.colliderect(player_sprite.rectangle):
+                enemy_sprites=[]
+        bombs = [bomb for bomb in bombs if not bomb.rectangle.colliderect(player_sprite.rectangle)]
         for enemy in enemy_sprites:
             enemy.move()
             enemy.bounce(width,height)
-        # Choose a random number. Use the random number to decide to add a new
-        # powerup to the powerups list. Experiment to make them appear not too
-        # often, so the game is challenging.
         Moarrnglmao=random.randint(0,100)
         if Moarrnglmao==100:
             powerups.append(PowerUp(powerup_display,width,height))
@@ -173,40 +186,38 @@ def main():
             spawn_cooldown=100/gear
         else:
             spawn_cooldown-=1
-        # Erase the screen with a background color
-        screen.fill((0, 100, 50))  # fill the window with a color
-        print(spawn_cooldown)
-        # Draw the characters
+        screen.fill((0, 100, 50))
         for enemy_sprite in enemy_sprites:
             enemy_sprite.draw(screen)
         for powerup_sprite in powerups:
             powerup_sprite.draw(screen)
-
+        for bomb_sprite in bombs:
+            bomb_sprite.draw(screen)
         player_sprite.draw(screen)
 
-        # Write the life to the screen.
         text = "Life: " + str('%.1f' % life)
         life_banner = myfont.render(text, True, (255, 255, 0))
         screen.blit(life_banner, (20, 20))
         if life <=0:
-            failtext="Game over! You survived for: "
-            endtime=str(finaltime)
+            highscore_table_creator(finaltime,make_list_from_file("High_scores!.txt"))
+            failtext="Game over!"
+            endtime="You survived for: " + str(finaltime)
+            endgear="And got through: "+str(gear)+" Gearshifts!"
             screen.fill((255, 0, 0))
             ending_text_1=myfont.render(failtext, True, (71,255,144))
-            ending_text_2=myfont.render(endtime,True,(218,165,32))
-            screen.blit(ending_text_1,(50,100))
-            screen.blit(ending_text_2,(50,150))
+            ending_text_2=myfont.render(endtime,True,(71,255,144))
+            ending_text_3=myfont.render(endgear, True, (71,255,144))
+            screen.blit(ending_text_1,(150,60))
+            screen.blit(ending_text_2,(80,100))
+            screen.blit(ending_text_3, (50,150))
             is_playing=False
 
 
-        # Bring all the changes to the screen into view
         pygame.display.update()
         # Pause for a few milliseconds
         pygame.time.wait(20)
 
-    # Once the game loop is done, pause, close the window and quit.
-    # Pause for a few seconds
-    pygame.time.wait(2000)
+    pygame.time.wait(3000)
     pygame.quit()
     sys.exit()
 
