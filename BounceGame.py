@@ -118,7 +118,7 @@ def main():
     size = width, height
     screen = pygame.display.set_mode((width, height))
 
-    enemy = pygame.image.load("GolfBall.png").convert_alpha()
+    enemy = pygame.image.load("Spikeball.png").convert_alpha()
     enemy_image = pygame.transform.smoothscale(enemy, (50, 50))
 
     enemy_sprites = []
