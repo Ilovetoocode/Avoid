@@ -128,7 +128,7 @@ def main():
     player_sprite = Sprite(player_image)
     life = 3
 
-    powerup_image = pygame.image.load("knight.gif").convert_alpha()
+    powerup_image = pygame.image.load("Water.jpeg").convert_alpha()
     powerup_display=pygame.transform.smoothscale(powerup_image,(60,50))
 
     bomb_image=pygame.image.load("Bomb.png").convert_alpha()
