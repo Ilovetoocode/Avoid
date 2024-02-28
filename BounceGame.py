@@ -101,7 +101,8 @@ def main():
     powerup_display=pygame.transform.smoothscale(powerup_image,(60,50))
     # Start with an empty list of powerups and add them as the game runs.
     powerups = []
-
+    gearshift = pygame.USEREVENT + 1
+    pygame.time.set_timer(gearshift, 10000, 0)
     # Main part of the game
     is_playing = True
     # while loop
@@ -113,7 +114,6 @@ def main():
         ##THE GEAR SYSTEM! Basically it needs to be, defined like this
         ##Just so I can set a timer on it using pygame later on.
         ##There, I will fully explain, the madness.
-        gearshift=pygame.USEREVENT+1
         ##i hate having this code here... if only i could move it into a different function without breaking stuff...
         ##Anyways! This game is in an endless survival thing due to how I have my spawn code set up!
         ##So of course! We need to exploit the fact that there is a timer function in pygame to do just that!
@@ -123,12 +123,13 @@ def main():
         milliseconds=str(gametime%1000).zfill(3)
         finaltime="%s:%s:%s"%(minutes,seconds,milliseconds)
         ##Here's the timer for, gearshifts
-        pygame.time.set_timer(gearshift,1000, 0) ##CHANGE THAT NUMBER ON THE END, GAME IS IMPOSSIBLE NOW
+         ##CHANGE THAT NUMBER ON THE END, GAME IS IMPOSSIBLE NOW
         for event in pygame.event.get():
             # Stop loop if click on window close button
             if event.type == gearshift:
                 gear += 1
                 print("Event happens")
+                print(gear)
             if event.type == pygame.QUIT:
                 is_playing = False
         # Make the player follow the mouse
@@ -166,16 +167,15 @@ def main():
         Moarrnglmao=random.randint(0,100)
         if Moarrnglmao==100:
             powerups.append(PowerUp(powerup_display,width,height))
-        if spawn_cooldown==0:
+        if spawn_cooldown<=0:
 
             enemy_sprites.append(Enemy(enemy_image, width, height, gear))
-            spawn_cooldown=(100/gear)
-            print(gear)
+            spawn_cooldown=100/gear
         else:
             spawn_cooldown-=1
         # Erase the screen with a background color
         screen.fill((0, 100, 50))  # fill the window with a color
-
+        print(spawn_cooldown)
         # Draw the characters
         for enemy_sprite in enemy_sprites:
             enemy_sprite.draw(screen)
