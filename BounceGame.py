@@ -190,7 +190,12 @@ class PowerUp(Sprite):
     def __init__(self, image, width, height):
         Sprite.__init__(self, image)
         self.rectangle.center = (random.randint(0, width), random.randint(0, height))
-
+class RotatingPowerUp(PowerUp):
+    def __init__(self, image,width,height):
+        PowerUp.__init__(self,image,width,height)
+        self.angle=0
+        self.original_image=self.image
+    
 
 def main():
     pygame.init()
