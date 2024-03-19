@@ -1,11 +1,11 @@
 import pygame, sys, math, random
 
 
-##So this used to be the function from last time...
-##BUT OH MY GOODNESS, IS IT SO MUCH BETTER NOW!!
-##Managed to somehow make it all one line, nowehere near as messy
-##AND It's actually able to strip data! Yes!
-# Also it always pops the first element, because that data ends up causing bugs later on.
+# So this used to be the function from last time...
+# BUT OH MY GOODNESS, IS IT SO MUCH BETTER NOW!!
+# Managed to somehow make it all one line, nowhere near as messy
+# AND It's actually able to strip data! Yes!
+# Also, it always pops the first element, because that data ends up causing bugs later on.
 # You will see why.
 def make_list_from_file(file):
     with open(file, 'r', encoding='utf8') as file:
@@ -42,7 +42,7 @@ def highscore_table_creator(scoreinput, tableinput):
         # After that it instantiates two needed items that help control the inner loop.
         broken_score = str(score).split(":")
         inner_loop_pointer = 0
-        Newhigh = False
+        newhigh = False
         for scorepart in possible_new_high:
             # Speaking of: here's the inner loop.
             # This part is where I nearly had a mental block.
@@ -66,24 +66,22 @@ def highscore_table_creator(scoreinput, tableinput):
                 # And 3: An element of the score is higher than the one from the original table that's
                 # Being compared against. In which case, the code is broken out of after setting
                 # A variable instantiated earlier to True, the Newhigh variable.
-                Newhigh = True
+                newhigh = True
                 break
-        # This code checks if Newhigh has been set to true at any point within the larger loop.
-        # What it does is insert into the tableinput list the new score at an index set to a
-        # pointer variable designed specifically to track how many items have been looked through
-        # In the larger list. Afterward, it pops out the final entry on the scoreboard, keeping it at a constant
-        # 5 scores, unless someone adds in a new score manually, making that into the new max size of the high score file.
-        # Finally, it tells the large loop to break, if it didn't, it would
-        # Turn all the scores lower than yours into your score,
-        # Rather than just the one.
-        if Newhigh == True:
+        # This code checks if Newhigh has been set to true at any point within the larger loop. What it does is
+        # insert into the tableinput list the new score at an index set to a pointer variable designed specifically
+        # to track how many items have been looked through In the larger list. Afterward, it pops out the final entry
+        # on the scoreboard, keeping it at a constant 5 scores, unless someone adds in a new score manually,
+        # making that into the new max size of the high score file. Finally, it tells the large loop to break,
+        # if it didn't, it would Turn all the scores lower than yours into your score, Rather than just the one.
+        if newhigh:
             tableinput.insert(itempoint, scoreinput)
             tableinput.pop(-1)
             break
         # This is the indexing variable for the large loop
         itempoint += 1
     # After the large loop is finished, either exhausting
-    # All of the table values without being able to find a score lower than the one of
+    # All the table values without being able to find a score lower than the one of
     # The current player's, or being broken out of due to the player getting a high score,
     # The endstring value defined earlier is fed in the tableinput
     # list, each item being put on a new line.
@@ -190,19 +188,23 @@ class PowerUp(Sprite):
     def __init__(self, image, width, height):
         Sprite.__init__(self, image)
         self.rectangle.center = (random.randint(0, width), random.randint(0, height))
+
+
 class RotatingPowerUp(PowerUp):
-    def __init__(self, image,width,height):
-        PowerUp.__init__(self,image,width,height)
-        self.angle=0
-        self.original_image=self.image
-    def draw(self,screen):
-        center=self.rectangle.center
-        self.angle+=0.5
-        self.image=pygame.transform.rotate(self.original_image,self.angle)
-        self.rectangle=self.image.get_rect()
-        self.rectangle.center=center
-        self.mask=pygame.mask.from_surface(self.image)
+    def __init__(self, image, width, height):
+        PowerUp.__init__(self, image, width, height)
+        self.angle = 0
+        self.original_image = self.image
+
+    def draw(self, screen):
+        center = self.rectangle.center
+        self.angle += 0.5
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.rectangle = self.image.get_rect()
+        self.rectangle.center = center
+        self.mask = pygame.mask.from_surface(self.image)
         super().draw(screen)
+
 
 def main():
     pygame.init()
@@ -210,7 +212,7 @@ def main():
     # The gear is defined for the entire program
     gear = 1
     # The timer for scoring is initialized here
-    Thetimer = pygame.time.Clock()
+    thetimer = pygame.time.Clock()
     starttime = pygame.time.get_ticks()
 
     myfont = pygame.font.SysFont('monospace', 24)
@@ -221,8 +223,8 @@ def main():
     enemy = pygame.image.load("Spikeball.png").convert_alpha()
     enemy_image = pygame.transform.smoothscale(enemy, (50, 50))
 
-    platform_enemy=pygame.image.load("Lavaspikes.jpeg").convert_alpha()
-    platform_enemy_image=pygame.transform.smoothscale(platform_enemy, (50, 50))
+    platform_enemy = pygame.image.load("Lavaspikes.jpeg").convert_alpha()
+    platform_enemy_image = pygame.transform.smoothscale(platform_enemy, (50, 50))
     enemy_sprites = []
 
     player = pygame.image.load("Derg.jpg").convert_alpha()
@@ -233,8 +235,8 @@ def main():
     powerup_image = pygame.image.load("Water.jpeg").convert_alpha()
     powerup_display = pygame.transform.smoothscale(powerup_image, (60, 50))
 
-    rotating_powerup=pygame.image.load("Spiketower.jpeg").convert_alpha()
-    rotating_powerup_image= pygame.transform.smoothscale(rotating_powerup, (60, 50))
+    rotating_powerup = pygame.image.load("Spiketower.jpeg").convert_alpha()
+    rotating_powerup_image = pygame.transform.smoothscale(rotating_powerup, (60, 50))
 
     bomb_image = pygame.image.load("Bomb.png").convert_alpha()
     bomb_display = pygame.transform.smoothscale(bomb_image, (60, 50))
@@ -281,7 +283,7 @@ def main():
         # They always give lives though
         for powerup in powerups:
             if powerup.rectangle.colliderect(player_sprite.rectangle):
-                if isinstance(powerup,RotatingPowerUp):
+                if isinstance(powerup, RotatingPowerUp):
                     enemy_sprites = []
                 life += 1
         # Removing powerups picked up
@@ -296,18 +298,18 @@ def main():
         for enemy in enemy_sprites:
             enemy.move()
             enemy.bounce(width, height)
-        Moarrnglmao = random.randint(1, 100)
-        if Moarrnglmao == 100:
-            RandomizeToBeSpecialSpinner=random.randint(1,100)
-            if RandomizeToBeSpecialSpinner==100:
-                powerups.append(RotatingPowerUp(rotating_powerup_image,width,height))
+        moarrnglmao = random.randint(1, 100)
+        if moarrnglmao == 100:
+            randomizeToBeSpecialSpinner = random.randint(1, 100)
+            if randomizeToBeSpecialSpinner == 100:
+                powerups.append(RotatingPowerUp(rotating_powerup_image, width, height))
             else:
                 powerups.append(PowerUp(powerup_display, width, height))
         # This part handles enemy spawning, taking in a base value of 100
         # And dividing it by the gear value. This makes the game more hectic
         # Since enemies spawn faster as the game goes on.
         if spawn_cooldown <= 0:
-            if Moarrnglmao<=50:
+            if moarrnglmao <= 50:
                 enemy_sprites.append(Enemy(enemy_image, width, height, gear))
             else:
                 enemy_sprites.append(PlatformEnemy(platform_enemy_image, width, height, gear))
