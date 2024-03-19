@@ -168,19 +168,12 @@ class Enemy(Sprite):
             changeval[1] *= -1
             self.speed = tuple(changeval)
 
-    def draw(self, screen):
-        screen.blit(self.image, self.rectangle)
 
-
-class PowerUp:
+class PowerUp(Sprite):
     def __init__(self, image, width, height):
-        self.image = image
-        self.mask = pygame.mask.from_surface(image)
-        self.rectangle = image.get_rect()
+        Sprite.__init__(self,image)
         self.rectangle.center = (random.randint(0, width), random.randint(0, height))
 
-    def draw(self, screen):
-        screen.blit(self.image, self.rectangle)
 
 
 def main():
