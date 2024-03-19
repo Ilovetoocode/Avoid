@@ -110,8 +110,6 @@ class Sprite:
         self.rectangle = image.get_rect()
         self.mask = pygame.mask.from_surface(image)
 
-    def set_position(self, new_position):
-        self.rectangle.center = new_position
 
     def draw(self, screen):
         screen.blit(self.image, self.rectangle)
@@ -119,7 +117,9 @@ class Sprite:
     def is_colliding(self, other_sprite):
         return pixel_collision(self.mask, self.rectangle, other_sprite.mask, other_sprite.rectangle)
 
-
+class Player(Sprite):
+    def set_position(self, new_position):
+        self.rectangle.center = new_position
 class Enemy:
     # The enemy class has added variables now.
     # First off, there's of course the initial position, randomly selected on the grip
@@ -206,7 +206,7 @@ def main():
 
     player = pygame.image.load("Derg.jpg").convert_alpha()
     player_image = pygame.transform.smoothscale(player, (60, 50))
-    player_sprite = Sprite(player_image)
+    player_sprite = Player(player_image)
     life = 3
 
     powerup_image = pygame.image.load("Water.jpeg").convert_alpha()
