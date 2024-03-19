@@ -1,5 +1,6 @@
 import pygame, sys, math, random
 
+
 ##So this used to be the function from last time...
 ##BUT OH MY GOODNESS, IS IT SO MUCH BETTER NOW!!
 ##Managed to somehow make it all one line, nowehere near as messy
@@ -12,17 +13,19 @@ def make_list_from_file(file):
         items.pop(0)
         return items
 
+
 # The file writer from the last program... and right below it...
 def file_writer(text_to_print):
     with open('High_scores!.txt', 'w') as result_file:
         result_file.write("Scores!\n")
         result_file.write(text_to_print + "\n")
 
+
 # This beast. This is an over-engineered function to say the least, so many moving parts!
 # Don't worry, I'll break this down step by step.
 def highscore_table_creator(scoreinput, tableinput):
     # This starting point turns an input score into a list with 3 elements.
-    #After this, it takes in the inputted table of scores
+    # After this, it takes in the inputted table of scores
     # And stores that in a container of its own.
     # It finally instantiates a variable for index pointing, and
     # A place to store the end result of the function as a string instead of a large list.
@@ -31,8 +34,8 @@ def highscore_table_creator(scoreinput, tableinput):
     itempoint = 0
     endstring = ""
     for score in confirmed_highs:
-        #This part might have been able to be done in list ccomprehension
-        #However IDK how powerful it is, and also seeing this might
+        # This part might have been able to be done in list ccomprehension
+        # However IDK how powerful it is, and also seeing this might
         # Be better at understanding the trouble I had implimenting this one feauture.
         # It starts out fine each loop, just instantiating for the loop
         # A new list of the current list item from the confirmed_highs list from earlier.
@@ -41,7 +44,7 @@ def highscore_table_creator(scoreinput, tableinput):
         inner_loop_pointer = 0
         Newhigh = False
         for scorepart in possible_new_high:
-            #Speaking of: here's the inner loop.
+            # Speaking of: here's the inner loop.
             # This part is where I nearly had a mental block.
             # This thing needed so many iterations just to make sure
             # The final part of the code didn't break and corrupt the high scores file.
@@ -98,18 +101,21 @@ def pixel_collision(mask1, rect1, mask2, rect2):
         return True
     else:
         return False
+
+
 # This function just simply takes in two numbers.
 # An input number for the function, and the base the input will be working on
 # This function exists as a mitigation effort to make a later part of this code readable.
-def log_int(inputnum,inputbase):
-    outputnum=int(math.log(inputnum,inputbase))
+def log_int(inputnum, inputbase):
+    outputnum = int(math.log(inputnum, inputbase))
     return outputnum
+
+
 class Sprite:
     def __init__(self, image):
         self.image = image
         self.rectangle = image.get_rect()
         self.mask = pygame.mask.from_surface(image)
-
 
     def draw(self, screen):
         screen.blit(self.image, self.rectangle)
@@ -117,9 +123,12 @@ class Sprite:
     def is_colliding(self, other_sprite):
         return pixel_collision(self.mask, self.rectangle, other_sprite.mask, other_sprite.rectangle)
 
+
 class Player(Sprite):
     def set_position(self, new_position):
         self.rectangle.center = new_position
+
+
 class Enemy(Sprite):
     # The enemy class has added variables now.
     # First off, there's of course the initial position, randomly selected on the grip
@@ -137,7 +146,7 @@ class Enemy(Sprite):
         # Simple, right? Well....
         self.gear = gear
         # This base speed is set as 100 times the gear, which finally brings us....
-        self.basespeed=100*gear
+        self.basespeed = 100 * gear
         # To this. My worst code ever. What it does is set two random ranges for the X and Y
         # Cooridinates to pick from. That's the simple part, the issue comes in
         # When the balancing changes are sent in. For these, it grabs self.basevalue,
@@ -150,10 +159,12 @@ class Enemy(Sprite):
         self.speed = (
             random.randrange((log_int(self.basespeed, 2) * -1), log_int(self.basespeed, 2)), random.randrange((log_int(
                 self.basespeed, 2) * -1), log_int(self.basespeed * gear, 2)))
-    #A simple move function, all it does
+
+    # A simple move function, all it does
     # Is use the speed the object has to move around on the board.
     def move(self):
         self.rectangle.move_ip(self.speed)
+
     # Slightly broken.
     # Detects the edge of the screen on all sides, making sure
     # things stay inside.
@@ -169,11 +180,16 @@ class Enemy(Sprite):
             self.speed = tuple(changeval)
 
 
+class PlatformEnemy(Enemy):
+    def __init__(self, image, width, height, gear):
+        Enemy.__init__(self, image, width, height, gear)
+        self.speed = (self.speed[0], 0)
+
+
 class PowerUp(Sprite):
     def __init__(self, image, width, height):
-        Sprite.__init__(self,image)
+        Sprite.__init__(self, image)
         self.rectangle.center = (random.randint(0, width), random.randint(0, height))
-
 
 
 def main():
@@ -193,6 +209,8 @@ def main():
     enemy = pygame.image.load("Spikeball.png").convert_alpha()
     enemy_image = pygame.transform.smoothscale(enemy, (50, 50))
 
+    platform_enemy=pygame.image.load("Spikeball.png").convert_alpha()
+    platform_enemy_image=pygame.transform.smoothscale(platform_enemy, (50, 50))
     enemy_sprites = []
 
     player = pygame.image.load("Derg.jpg").convert_alpha()
@@ -210,7 +228,7 @@ def main():
     # This new list is for a new form of powerup.
     # It will be explained shortly
     bombs = []
-    #The gear timer is initialized, alongside the event that
+    # The gear timer is initialized, alongside the event that
     # Is triggered to make sure it happens
     gearshift = pygame.USEREVENT + 1
     pygame.time.set_timer(gearshift, 10000, 0)
@@ -253,7 +271,7 @@ def main():
                 life += 1
         # Removing powerups picked up
         powerups = [powerup for powerup in powerups if not powerup.rectangle.colliderect(player_sprite.rectangle)]
-        #This is why bombs are given out so rarely, they act as a
+        # This is why bombs are given out so rarely, they act as a
         # Garaenteed way to clear out all enemies, rather than depending on an RNG chance.
         for bomb in bombs:
             if bomb.rectangle.colliderect(player_sprite.rectangle):
@@ -270,8 +288,10 @@ def main():
         # And dividing it by the gear value. This makes the game more hectic
         # Since enemies spawn faster as the game goes on.
         if spawn_cooldown <= 0:
-
-            enemy_sprites.append(Enemy(enemy_image, width, height, gear))
+            if Moarrnglmao<=50:
+                enemy_sprites.append(Enemy(enemy_image, width, height, gear))
+            else:
+                enemy_sprites.append(PlatformEnemy(platform_enemy_image, width, height, gear))
             spawn_cooldown = 100 / gear
         else:
             spawn_cooldown -= 1
@@ -284,7 +304,7 @@ def main():
         for bomb_sprite in bombs:
             bomb_sprite.draw(screen)
         player_sprite.draw(screen)
-        #Finally, after the player dies, this code is run to display the game over screen
+        # Finally, after the player dies, this code is run to display the game over screen
         # It grabs the time stored and shows it to the player
         # It also grabs the gear to give an idea of how many times the game
         # Got harder before they died. It also runs the table creator before making the ending screen,
