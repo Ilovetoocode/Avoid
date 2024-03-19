@@ -281,7 +281,7 @@ def main():
         # They always give lives though
         for powerup in powerups:
             if powerup.rectangle.colliderect(player_sprite.rectangle):
-                if Moarrnglmao == 40:
+                if isinstance(powerup,RotatingPowerUp):
                     enemy_sprites = []
                 life += 1
         # Removing powerups picked up
@@ -298,9 +298,11 @@ def main():
             enemy.bounce(width, height)
         Moarrnglmao = random.randint(1, 100)
         if Moarrnglmao == 100:
-            powerups.append(PowerUp(powerup_display, width, height))
-        if Moarrnglmao == 1:
-            powerups.append(RotatingPowerUp(rotating_powerup_image,width,height))
+            RandomizeToBeSpecialSpinner=random.randint(1,100)
+            if RandomizeToBeSpecialSpinner==100:
+                powerups.append(RotatingPowerUp(rotating_powerup_image,width,height))
+            else:
+                powerups.append(PowerUp(powerup_display, width, height))
         # This part handles enemy spawning, taking in a base value of 100
         # And dividing it by the gear value. This makes the game more hectic
         # Since enemies spawn faster as the game goes on.
