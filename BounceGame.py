@@ -120,7 +120,7 @@ class Sprite:
 class Player(Sprite):
     def set_position(self, new_position):
         self.rectangle.center = new_position
-class Enemy:
+class Enemy(Sprite):
     # The enemy class has added variables now.
     # First off, there's of course the initial position, randomly selected on the grip
     # Via two random inputs bounded into the range given in as parameters for the object.
@@ -128,9 +128,7 @@ class Enemy:
     # But then the gear system got put in and had to be balanced out a little for the game to be fun.
     # And now it's a mess.
     def __init__(self, image, width, height, gear):
-        self.image = image
-        self.mask = pygame.mask.from_surface(image)
-        self.rectangle = image.get_rect()
+        Sprite.__init__(self, image)
         self.rectangle.center = (random.randrange(0, width), random.randint(0, height))
         # This takes in from the parameters a certain gear.
         # This makes sure the gear functionalities of the game works.
