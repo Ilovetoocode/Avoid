@@ -195,7 +195,14 @@ class RotatingPowerUp(PowerUp):
         PowerUp.__init__(self,image,width,height)
         self.angle=0
         self.original_image=self.image
-    
+    def draw(self,screen):
+        center=self.rectangle.center
+        self.angle+=0.5
+        self.image=pygame.transform.rotate(self.original_image,self.angle)
+        self.rectangle=self.image.get_rect()
+        self.rectangle.center=center
+        self.mask=pygame.mask.from_surface(self.image)
+        super().draw(screen)
 
 def main():
     pygame.init()
@@ -225,6 +232,9 @@ def main():
 
     powerup_image = pygame.image.load("Water.jpeg").convert_alpha()
     powerup_display = pygame.transform.smoothscale(powerup_image, (60, 50))
+
+    rotating_powerup=pygame.image.load("Water.jpeg").convert_alpha()
+    rotating_powerup_image= pygame.transform.smoothscale(rotating_powerup, (60, 50))
 
     bomb_image = pygame.image.load("Bomb.png").convert_alpha()
     bomb_display = pygame.transform.smoothscale(bomb_image, (60, 50))
@@ -286,9 +296,11 @@ def main():
         for enemy in enemy_sprites:
             enemy.move()
             enemy.bounce(width, height)
-        Moarrnglmao = random.randint(0, 100)
+        Moarrnglmao = random.randint(1, 100)
         if Moarrnglmao == 100:
             powerups.append(PowerUp(powerup_display, width, height))
+        if Moarrnglmao == 1:
+            powerups.append(RotatingPowerUp(rotating_powerup_image,width,height))
         # This part handles enemy spawning, taking in a base value of 100
         # And dividing it by the gear value. This makes the game more hectic
         # Since enemies spawn faster as the game goes on.
