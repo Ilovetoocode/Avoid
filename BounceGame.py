@@ -3,7 +3,7 @@ import pygame, sys, math, random
 
 # So this used to be the function from last time...
 # BUT OH MY GOODNESS, IS IT SO MUCH BETTER NOW!!
-# Managed to somehow make it all one line, nowehere near as messy
+# Managed to somehow make it all one line, nowhere near as messy
 # AND It's actually able to strip data! Yes!
 # Also, it always pops the first element, because that data ends up causing bugs later on.
 # You will see why.
@@ -34,9 +34,9 @@ def highscore_table_creator(scoreinput, tableinput):
     itempoint = 0
     endstring = ""
     for score in confirmed_highs:
-        # This part might have been able to be done in list ccomprehension
+        # This part might have been able to be done in list comprehension
         # However IDK how powerful it is, and also seeing this might
-        # Be better at understanding the trouble I had implimenting this one feauture.
+        # Be better at understanding the trouble I had implementing this one feature.
         # It starts out fine each loop, just instantiating for the loop
         # A new list of the current list item from the confirmed_highs list from earlier.
         # After that it instantiates two needed items that help control the inner loop.
