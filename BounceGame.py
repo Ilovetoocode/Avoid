@@ -221,7 +221,7 @@ def main():
     enemy = pygame.image.load("Spikeball.png").convert_alpha()
     enemy_image = pygame.transform.smoothscale(enemy, (50, 50))
 
-    platform_enemy=pygame.image.load("Spikeball.png").convert_alpha()
+    platform_enemy=pygame.image.load("Lavaspikes.jpeg").convert_alpha()
     platform_enemy_image=pygame.transform.smoothscale(platform_enemy, (50, 50))
     enemy_sprites = []
 
@@ -233,7 +233,7 @@ def main():
     powerup_image = pygame.image.load("Water.jpeg").convert_alpha()
     powerup_display = pygame.transform.smoothscale(powerup_image, (60, 50))
 
-    rotating_powerup=pygame.image.load("Water.jpeg").convert_alpha()
+    rotating_powerup=pygame.image.load("Spiketower.jpeg").convert_alpha()
     rotating_powerup_image= pygame.transform.smoothscale(rotating_powerup, (60, 50))
 
     bomb_image = pygame.image.load("Bomb.png").convert_alpha()
