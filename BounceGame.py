@@ -146,13 +146,13 @@ class Enemy(Sprite):
         # This base speed is set as 100 times the gear, which finally brings us....
         self.basespeed = 100 * gear
         # To this. My worst code ever. What it does is set two random ranges for the X and Y
-        # Cooridinates to pick from. That's the simple part, the issue comes in
+        # Coordinates to pick from. That's the simple part, the issue comes in
         # When the balancing changes are sent in. For these, it grabs self.basevalue,
         # is told whatever the output of something done inside must be converted into an int
         # It then takes this base value and does a logarithmic equation to it.
         # Finally, for the negative values, it is multiplied by negative one, rather than
         # Attempting to pass a negative number into the log function.
-        # The log to int handeling is of course sent to the function set above,
+        # The log to int handling is of course sent to the function set above,
         # Though this only slightly fixes up the core issue of the number of parameters within.
         self.speed = (
             random.randrange((log_int(self.basespeed, 2) * -1), log_int(self.basespeed, 2)), random.randrange((log_int(
@@ -212,12 +212,10 @@ def main():
     # The gear is defined for the entire program
     gear = 1
     # The timer for scoring is initialized here
-    Thetimer = pygame.time.Clock()
     starttime = pygame.time.get_ticks()
 
     myfont = pygame.font.SysFont('monospace', 24)
     width, height = 600, 400
-    size = width, height
     screen = pygame.display.set_mode((width, height))
 
     enemy = pygame.image.load("Spikeball.png").convert_alpha()
@@ -289,7 +287,7 @@ def main():
         # Removing powerups picked up
         powerups = [powerup for powerup in powerups if not powerup.rectangle.colliderect(player_sprite.rectangle)]
         # This is why bombs are given out so rarely, they act as a
-        # Garaenteed way to clear out all enemies, rather than depending on an RNG chance.
+        # Guaranteed way to clear out all enemies, rather than depending on an RNG chance.
         for bomb in bombs:
             if bomb.rectangle.colliderect(player_sprite.rectangle):
                 enemy_sprites = []
